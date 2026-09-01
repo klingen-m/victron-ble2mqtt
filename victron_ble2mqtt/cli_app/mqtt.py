@@ -31,6 +31,8 @@ def _setup_mqtt_tls(mqtt_client, tls_settings):
 
     This uses an SSLContext when available and falls back to the older
     tls_set(...) API if necessary.
+    
+    IMPORTANT: TLS must be configured BEFORE calling connect() on the client!
     """
     if not tls_settings.enabled:
         return
@@ -131,7 +133,7 @@ def publish_loop(verbosity: TyroVerbosityArgType):
 
             self.mqtt_client = get_connected_client(settings=user_settings.mqtt, verbosity=verbosity)
             
-            # Configure TLS if enabled
+            # Configure TLS BEFORE loop_start() - this is critical for port 8883
             _setup_mqtt_tls(self.mqtt_client, user_settings.mqtt_tls)
             
             self.mqtt_client.loop_start()
