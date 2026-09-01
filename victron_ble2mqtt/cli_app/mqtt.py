@@ -5,6 +5,7 @@
 import asyncio
 import logging
 import time
+import ssl
 
 from bleak import AdvertisementData, BLEDevice
 from cli_base.cli_tools.verbosity import setup_logging
@@ -27,19 +28,77 @@ logger = logging.getLogger(__name__)
 def _setup_mqtt_tls(mqtt_client, tls_settings):
     """
     Configure TLS/SSL for MQTT client connection.
+
+    This uses an SSLContext when available and falls back to the older
+    tls_set(...) API if necessary.
     """
     if not tls_settings.enabled:
         return
 
+    # Maps from numeric config values to ssl module constants
+    CERT_REQS_MAP = {
+        0: ssl.CERT_NONE,
+        1: ssl.CERT_OPTIONAL,
+        2: ssl.CERT_REQUIRED,
+    }
+
+    TLS_VERSION_MAP = {
+        1: ssl.TLSVersion.TLSv1,
+        2: ssl.TLSVersion.TLSv1_2,
+        3: ssl.TLSVersion.TLSv1_3,
+    }
+
     try:
-        mqtt_client.tls_set(
-            ca_certs=tls_settings.ca_certs if tls_settings.ca_certs else None,
-            certfile=tls_settings.certfile if tls_settings.certfile else None,
-            keyfile=tls_settings.keyfile if tls_settings.keyfile else None,
-            cert_reqs=tls_settings.cert_reqs,
-            tls_version=tls_settings.tls_version,
-            ciphers=tls_settings.ciphers if tls_settings.ciphers else None,
-        )
+        ca_certs = tls_settings.ca_certs if getattr(tls_settings, 'ca_certs', None) else None
+        certfile = tls_settings.certfile if getattr(tls_settings, 'certfile', None) else None
+        keyfile = tls_settings.keyfile if getattr(tls_settings, 'keyfile', None) else None
+        cert_reqs = CERT_REQS_MAP.get(getattr(tls_settings, 'cert_reqs', 2), ssl.CERT_REQUIRED)
+        tls_version_cfg = getattr(tls_settings, 'tls_version', None)
+        tls_version = TLS_VERSION_MAP.get(tls_version_cfg) if tls_version_cfg is not None else None
+        ciphers = tls_settings.ciphers if getattr(tls_settings, 'ciphers', None) else None
+
+        # Build SSLContext for a secure connection
+        # If ca_certs is None, create_default_context will use system CA bundle
+        context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH, cafile=ca_certs)
+        context.verify_mode = cert_reqs
+
+        if certfile and keyfile:
+            context.load_cert_chain(certfile=certfile, keyfile=keyfile)
+
+        if tls_version is not None:
+            # Set minimum_version to the requested TLS version (modern API)
+            try:
+                context.minimum_version = tls_version
+            except Exception:
+                # If the runtime does not support TLSVersion enum assignment,
+                # we simply ignore and rely on defaults.
+                pass
+
+        if ciphers:
+            context.set_ciphers(ciphers)
+
+        # Use the modern API when available
+        if hasattr(mqtt_client, 'tls_set_context'):
+            mqtt_client.tls_set_context(context)
+        else:
+            # Fallback for older paho versions: tls_set with parameters
+            mqtt_client.tls_set(
+                ca_certs=ca_certs,
+                certfile=certfile,
+                keyfile=keyfile,
+                cert_reqs=cert_reqs,
+                tls_version=None,  # leave to ssl context; older API expects PROTOCOL_* constants
+                ciphers=ciphers,
+            )
+
+        # Ensure certificate verification is enforced when requested
+        if cert_reqs == ssl.CERT_REQUIRED:
+            try:
+                mqtt_client.tls_insecure_set(False)
+            except Exception:
+                # If the client does not provide tls_insecure_set, ignore
+                pass
+
         logger.info('TLS/SSL enabled for MQTT connection')
     except Exception as e:
         logger.error(f'Failed to configure TLS for MQTT: {e}')
