@@ -1,0 +1,8 @@
+[mqtt.mqtt_tls]
+enabled = true
+ca_certs = "/etc/dreibein/tls/victron-mqtt-ca-chain.crt"
+certfile = "/etc/dreibein/tls/victron-mqtt-client.crt"
+keyfile = "/etc/dreibein/tls/victron-mqtt-client.key"
+cert_reqs = 2
+tls_version = 2
+ciphers = ""
