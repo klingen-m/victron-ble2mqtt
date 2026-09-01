@@ -18,7 +18,7 @@ Tested with:
 
 Scrrenshot from Home Assistant:
 
-![2024-09-24 victron-ble2mqtt v0.4.0 Home Assistant 1.png](https://raw.githubusercontent.com/jedie/jedie.github.io/master/screenshots/victron-ble2mqtt/2024-09-24%20victron-ble2mqtt%20v0.4.0%20Home%20Assistant%201.png "2024-09-24 victron-ble2mqtt v0.4.0 Home Assistant 1.png")
+![2024-09-24 victron-ble2mqtt v0.4.0 Home Assistant 1.png](https://raw.githubusercontent.com/jedie/jedie.github.io/master/screenshots/victron-ble2mqtt/2024-09-24%20victron-ble2mqtt%20v0.4.0%20Home[...]
 
 More screenshots here: https://github.com/jedie/jedie.github.io/blob/master/screenshots/victron-ble2mqtt/README.md
 
@@ -119,6 +119,39 @@ device_keys = [
 Just insert the keys of all Victron Energy Smart Devices you want to monitor.
 
 
+### MQTT TLS/SSL Configuration
+
+To enable TLS/SSL encryption for your MQTT connection, add the following settings to your configuration:
+
+```python
+mqtt_tls = MqttTlsSettings(
+    enabled=True,
+    ca_certs='/path/to/ca.crt',                    # Path to CA certificate
+    certfile='/path/to/client.crt',                # Optional: Client certificate
+    keyfile='/path/to/client.key',                 # Optional: Client private key
+    cert_reqs=2,                                   # 0=NONE, 1=OPTIONAL, 2=REQUIRED (default)
+    tls_version=2,                                 # 1=TLSv1.0, 2=TLSv1.2, 3=TLSv1.3, etc.
+    ciphers='',                                    # Optional: Cipher suite specification
+)
+```
+
+**Example with self-signed certificate:**
+```python
+mqtt_tls = MqttTlsSettings(
+    enabled=True,
+    ca_certs='/etc/ssl/certs/mqtt-broker.crt',
+    cert_reqs=2,
+    tls_version=2,
+)
+```
+
+**Important notes:**
+- Set `enabled=False` (default) to disable TLS and use plain TCP connection
+- `ca_certs` is required when TLS is enabled
+- `certfile` and `keyfile` are optional for client certificate authentication
+- `cert_reqs` values: 0 (CERT_NONE), 1 (CERT_OPTIONAL), 2 (CERT_REQUIRED - default)
+
+
 ### How to get settings defaults back?
 
 There is a trick to get the default value back for one or more settings.
@@ -180,14 +213,14 @@ see: https://pipx.pypa.io/stable/docs/#pipx-upgrade
 
 [comment]: <> (✂✂✂ auto generated main help start ✂✂✂)
 ```
-usage: victron-ble2mqtt [-h] {debug-read,discover,edit-settings,print-settings,publish-loop,shell-completion,systemd-debug,systemd-logs,systemd-remove,systemd-setup,systemd-status,systemd-stop,update-readme-history,version}
+usage: victron-ble2mqtt [-h] {debug-read,discover,edit-settings,print-settings,publish-loop,shell-completion,systemd-debug,systemd-logs,systemd-remove,systemd-setup,systemd-status,systemd-stop,up[...]
 
 
 
-╭─ options ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+╭─ options ────────────────────────────────────────────────────────────[...]
 │ -h, --help        show this help message and exit                                                                    │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ subcommands ────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+╰────────────────────────────────────────────────────────────────[...]
+╭─ subcommands ──────────────────────────────────────────────────────────╮[...]
 │ (required)                                                                                                           │
 │   • debug-read    Read data from devices and print them. Device keys are used from config file, if not given.        │
 │   • discover      Discover Victron devices with Instant Readout                                                      │
@@ -215,7 +248,7 @@ usage: victron-ble2mqtt [-h] {debug-read,discover,edit-settings,print-settings,p
 │                   Also, callable via e.g.:                                                                           │
 │                       python -m cli_base update-readme-history -v                                                    │
 │   • version       Print version and exit                                                                             │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╰────────────────────────────────────────────────────────────────[...]
 ```
 [comment]: <> (✂✂✂ auto generated main help end ✂✂✂)
 
@@ -247,10 +280,10 @@ usage: ./dev-cli.py [-h] {coverage,install,lint,mypy,nox,pip-audit,publish,shell
 
 
 
-╭─ options ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+╭─ options ────────────────────────────────────────────────────────────[...]
 │ -h, --help     show this help message and exit                                                                       │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ subcommands ────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+╰────────────────────────────────────────────────────────────────[...]
+╭─ subcommands ──────────────────────────────────────────────────────────╮[...]
 │ (required)                                                                                                           │
 │   • coverage   Run tests and show coverage report.                                                                   │
 │   • install    Install requirements and 'victron_ble2mqtt' via pip as editable.                                      │
@@ -272,7 +305,7 @@ usage: ./dev-cli.py [-h] {coverage,install,lint,mypy,nox,pip-audit,publish,shell
 │   • update-test-snapshot-files                                                                                       │
 │                Update all test snapshot files (by remove and recreate all snapshot files)                            │
 │   • version    Print version and exit                                                                                │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╰────────────────────────────────────────────────────────────────[...]
 ```
 [comment]: <> (✂✂✂ auto generated dev help end ✂✂✂)
 
@@ -306,83 +339,83 @@ You must edit your settings:
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
 * [v0.8.0](https://github.com/jedie/victron-ble2mqtt/compare/v0.7.7...v0.8.0)
-  * 2026-04-11 - Expand README
-  * 2026-04-10 - fix CLI prog name to: "victron-ble2mqtt"
-  * 2026-04-10 - Enhance documentation how to update to pipx installation
-  * 2026-04-10 - New install method with pipx
-  * 2026-04-10 - Apply project updates
+   * 2026-04-11 - Expand README
+   * 2026-04-10 - fix CLI prog name to: "victron-ble2mqtt"
+   * 2026-04-10 - Enhance documentation how to update to pipx installation
+   * 2026-04-10 - New install method with pipx
+   * 2026-04-10 - Apply project updates
 * [v0.7.7](https://github.com/jedie/victron-ble2mqtt/compare/v0.7.6...v0.7.7)
-  * 2026-03-14 - Fix #51 API changes in victron-ble v0.9.3
+   * 2026-03-14 - Fix #51 API changes in victron-ble v0.9.3
 * [v0.7.6](https://github.com/jedie/victron-ble2mqtt/compare/v0.7.5...v0.7.6)
-  * 2026-03-14 - Don't install dev dependencies by `cli.py`
+   * 2026-03-14 - Don't install dev dependencies by `cli.py`
 * [v0.7.5](https://github.com/jedie/victron-ble2mqtt/compare/v0.7.4...v0.7.5)
-  * 2026-03-14 - Apply code style changes
-  * 2026-03-14 - Update requirements
+   * 2026-03-14 - Apply code style changes
+   * 2026-03-14 - Update requirements
 
 <details><summary>Expand older history entries ...</summary>
 
 * [v0.7.4](https://github.com/jedie/victron-ble2mqtt/compare/v0.7.3...v0.7.4)
-  * 2026-02-08 - Apply manageproject updates: Set min. Python to v3.12
+   * 2026-02-08 - Apply manageproject updates: Set min. Python to v3.12
 * [v0.7.3](https://github.com/jedie/victron-ble2mqtt/compare/v0.7.2...v0.7.3)
-  * 2025-12-09 - update README
-  * 2025-12-09 - Apply manageprojects update
-  * 2025-12-09 - Update requirements
-  * 2025-10-15 - Revert debugging
-  * 2025-10-15 - Add support for temperature for shunt
-  * 2025-09-25 - Fix SolarChargerHandler "yield_today" sensor
-  * 2025-09-25 - Tweak 'Consumed Ah' because "Ah" is not supported in HA.
+   * 2025-12-09 - update README
+   * 2025-12-09 - Apply manageprojects update
+   * 2025-12-09 - Update requirements
+   * 2025-10-15 - Revert debugging
+   * 2025-10-15 - Add support for temperature for shunt
+   * 2025-09-25 - Fix SolarChargerHandler "yield_today" sensor
+   * 2025-09-25 - Tweak 'Consumed Ah' because "Ah" is not supported in HA.
 * [v0.7.2](https://github.com/jedie/victron-ble2mqtt/compare/v0.7.1...v0.7.2)
-  * 2025-09-24 - remove obsolete .flake8 config + add/update PyCharm run configs
-  * 2025-09-24 - Remaining Minutes: set device_class='duration'
-  * 2025-09-24 - cleanup
-  * 2025-09-24 - Apply manageproject updates + update requirements
-  * 2025-09-24 - Update sensor units to those supported by the device class
+   * 2025-09-24 - remove obsolete .flake8 config + add/update PyCharm run configs
+   * 2025-09-24 - Remaining Minutes: set device_class='duration'
+   * 2025-09-24 - cleanup
+   * 2025-09-24 - Apply manageproject updates + update requirements
+   * 2025-09-24 - Update sensor units to those supported by the device class
 * [v0.7.1](https://github.com/jedie/victron-ble2mqtt/compare/v0.7.0...v0.7.1)
-  * 2025-09-13 - fix wrong links in README
-  * 2025-09-13 - Add PyCharm run config files
-  * 2025-09-13 - Apply manageprojects updates
-  * 2025-08-19 - Bugfix "consumed_ah" sensor: "electricity" -> "energy"
+   * 2025-09-13 - fix wrong links in README
+   * 2025-09-13 - Add PyCharm run config files
+   * 2025-09-13 - Apply manageprojects updates
+   * 2025-08-19 - Bugfix "consumed_ah" sensor: "electricity" -> "energy"
 * [v0.7.0](https://github.com/jedie/victron-ble2mqtt/compare/v0.6.0...v0.7.0)
-  * 2025-08-19 - NEW: "./cli.py systemd-logs"
-  * 2025-08-19 - Add new setting: `publish_throttle_seconds` for #31
-  * 2025-08-19 - Update requirements
-  * 2025-06-17 - Limit sensor values
+   * 2025-08-19 - NEW: "./cli.py systemd-logs"
+   * 2025-08-19 - Add new setting: `publish_throttle_seconds` for #31
+   * 2025-08-19 - Update requirements
+   * 2025-06-17 - Limit sensor values
 * [v0.6.0](https://github.com/jedie/victron-ble2mqtt/compare/v0.5.1...v0.6.0)
-  * 2025-04-08 - Remove own Wifi info stuff
+   * 2025-04-08 - Remove own Wifi info stuff
 * [v0.5.1](https://github.com/jedie/victron-ble2mqtt/compare/v0.5.0...v0.5.1)
-  * 2025-04-08 - pip-tools -> uv
+   * 2025-04-08 - pip-tools -> uv
 * [v0.5.0](https://github.com/jedie/victron-ble2mqtt/compare/v0.4.1...v0.5.0)
-  * 2024-09-25 - NEW: Midpoint Shift (absolut + percent) in BatteryMonitor
+   * 2024-09-25 - NEW: Midpoint Shift (absolut + percent) in BatteryMonitor
 * [v0.4.1](https://github.com/jedie/victron-ble2mqtt/compare/v0.4.0...v0.4.1)
-  * 2024-09-24 - Bugfix delay data: Never, never use time.sleep() in a async context
+   * 2024-09-24 - Bugfix delay data: Never, never use time.sleep() in a async context
 * [v0.4.0](https://github.com/jedie/victron-ble2mqtt/compare/v0.3.0...v0.4.0)
-  * 2024-09-24 - Update README.md
-  * 2024-09-22 - Use device keys and refactor MQTT sensors: Support BatteryMonitor
-  * 2024-09-22 - Bugfix Pi installation
-  * 2024-09-22 - Move pip-compile switches into pyproject.toml
-  * 2024-09-22 - Update requirements
+   * 2024-09-24 - Update README.md
+   * 2024-09-22 - Use device keys and refactor MQTT sensors: Support BatteryMonitor
+   * 2024-09-22 - Bugfix Pi installation
+   * 2024-09-22 - Move pip-compile switches into pyproject.toml
+   * 2024-09-22 - Update requirements
 * [v0.3.0](https://github.com/jedie/victron-ble2mqtt/compare/v0.1.0...v0.3.0)
-  * 2024-09-20 - bugfix publish
-  * 2024-09-20 - Add help pages into README
-  * 2024-04-16 - Update to new ha-services version and update project setup
-  * 2024-03-23 - Update README.md
-  * 2024-03-10 - Disable verbose print as default
-  * 2024-03-10 - Expose WiFi quality values to MQTT
+   * 2024-09-20 - bugfix publish
+   * 2024-09-20 - Add help pages into README
+   * 2024-04-16 - Update to new ha-services version and update project setup
+   * 2024-03-23 - Update README.md
+   * 2024-03-10 - Disable verbose print as default
+   * 2024-03-10 - Expose WiFi quality values to MQTT
 * [v0.1.0](https://github.com/jedie/victron-ble2mqtt/compare/2bff08d...v0.1.0)
-  * 2024-03-09 - Remove 3.9 from test matrix
-  * 2024-03-09 - requires-python = ">=3.10"
-  * 2024-03-09 - Update README.md
-  * 2024-03-09 - Add Hostname + sys load to MQTT
-  * 2024-03-09 - Add info about systemd to README
-  * 2024-03-09 - Remove deprecation warning about RSSI
-  * 2024-03-09 - Bugfix systemd "exec_start" value
-  * 2024-03-09 - Add systemd commands
-  * 2024-03-09 - Publish value to MQTT
-  * 2024-03-09 - Add user settings and "debug-read" CLI command
-  * 2024-03-09 - Add "discover" to app CLI
-  * 2024-03-08 - More info in README
-  * 2024-03-08 - Add "victron-ble" and "ha-services"
-  * 2024-03-08 - Init from https://github.com/jedie/cookiecutter_templates
+   * 2024-03-09 - Remove 3.9 from test matrix
+   * 2024-03-09 - requires-python = ">=3.10"
+   * 2024-03-09 - Update README.md
+   * 2024-03-09 - Add Hostname + sys load to MQTT
+   * 2024-03-09 - Add info about systemd to README
+   * 2024-03-09 - Remove deprecation warning about RSSI
+   * 2024-03-09 - Bugfix systemd "exec_start" value
+   * 2024-03-09 - Add systemd commands
+   * 2024-03-09 - Publish value to MQTT
+   * 2024-03-09 - Add user settings and "debug-read" CLI command
+   * 2024-03-09 - Add "discover" to app CLI
+   * 2024-03-08 - More info in README
+   * 2024-03-08 - Add "victron-ble" and "ha-services"
+   * 2024-03-08 - Init from https://github.com/jedie/cookiecutter_templates
 
 </details>
 
