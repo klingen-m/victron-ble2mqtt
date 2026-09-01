@@ -24,6 +24,28 @@ from victron_ble2mqtt.victron_ble_utils import DeviceHandler
 logger = logging.getLogger(__name__)
 
 
+def _setup_mqtt_tls(mqtt_client, tls_settings):
+    """
+    Configure TLS/SSL for MQTT client connection.
+    """
+    if not tls_settings.enabled:
+        return
+
+    try:
+        mqtt_client.tls_set(
+            ca_certs=tls_settings.ca_certs if tls_settings.ca_certs else None,
+            certfile=tls_settings.certfile if tls_settings.certfile else None,
+            keyfile=tls_settings.keyfile if tls_settings.keyfile else None,
+            cert_reqs=tls_settings.cert_reqs,
+            tls_version=tls_settings.tls_version,
+            ciphers=tls_settings.ciphers if tls_settings.ciphers else None,
+        )
+        logger.info('TLS/SSL enabled for MQTT connection')
+    except Exception as e:
+        logger.error(f'Failed to configure TLS for MQTT: {e}')
+        raise
+
+
 @app.command
 def publish_loop(verbosity: TyroVerbosityArgType):
     """
@@ -49,6 +71,10 @@ def publish_loop(verbosity: TyroVerbosityArgType):
             self.victron_mqtt_handler = VictronMqttDeviceHandler(user_settings=user_settings)
 
             self.mqtt_client = get_connected_client(settings=user_settings.mqtt, verbosity=verbosity)
+            
+            # Configure TLS if enabled
+            _setup_mqtt_tls(self.mqtt_client, user_settings.mqtt_tls)
+            
             self.mqtt_client.loop_start()
 
             self.rssi_info = {}
